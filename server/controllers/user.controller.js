@@ -8,7 +8,7 @@ async function register(req, res) {
   try {
     const { username, email, password } = req.body;
 
-    if (!username || !email || !passowrd)
+    if (!username || !email || !password)
       return res.status(401).json({
         message: "Something is wrong, please check",
         success: false,
@@ -42,7 +42,7 @@ async function login(req, res) {
   try {
     const { email, password } = req.body;
 
-    if (!email || !passowrd)
+    if (!email || !password)
       return res.status(401).json({
         message: "Something is wrong, please check",
         success: false,
@@ -106,7 +106,7 @@ async function logout(_, res) {
 async function getProfile(req, res) {
   try {
     const userId = req.params.id;
-    let user = await User.findById(userId);
+    let user = await User.findById(userId).select("-password");
     return res.status(200).json({
       user,
       success: true,
@@ -121,14 +121,15 @@ async function editProfile(req, res) {
     const userId = req.id;
     const { bio, gender } = req.body;
     const profilePic = req.file;
-    let cloudRespone;
+    let cloudResponse;
 
     if (profilePic) {
       const fileUri = getDataUri(profilePic);
-      cloudRespone = await cloudianry.uploader.upload(fileUri);
+      cloudResponse = await cloudianry.uploader.upload(fileUri);
     }
 
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).select("-password");
+
     if (!user)
       return res.status(401).json({
         message: "User not found",
@@ -189,7 +190,7 @@ async function followOrUnfollow(req, res) {
       });
 
     const isFollowing = user.following.includes(followedTo);
-    const operation = isFollowing ? "$push" : "$pull";
+    const operation = isFollowing ? "$pull" : "$push";
     await Promise.all([
       User.updateOne(
         {
@@ -225,4 +226,5 @@ module.exports = {
   getProfile,
   editProfile,
   getSuggestedUsers,
+  followOrUnfollow,
 };
