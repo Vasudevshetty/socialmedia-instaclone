@@ -1,7 +1,11 @@
-import { Button } from "./components/ui/button";
+import Signup from "./components/Signup";
 
 function App() {
-  return <div>hello world</div>;
+  return (
+    <>
+      <Signup />
+    </>
+  );
 }
 
 export default App;
