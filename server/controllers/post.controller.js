@@ -59,17 +59,15 @@ async function getAllPosts(req, res) {
   try {
     const posts = await Post.find()
       .sort({ createdAt: -1 })
-      .populate(
-        { path: "author", select: "username, profilePic" },
-        {
-          path: "comment",
-          sort: { createdAt: -1 },
-          populate: {
-            path: "author",
-            select: "username, profilePic",
-          },
-        }
-      );
+      .populate({ path: "author", select: "username profilePic" })
+      .populate({
+        path: "comments",
+        options: { sort: { createdAt: -1 } },
+        populate: {
+          path: "author",
+          select: "username, profilePic",
+        },
+      });
 
     return res.status(200).json({
       posts,
@@ -83,22 +81,20 @@ async function getAllPosts(req, res) {
 async function getUserPosts(req, res) {
   try {
     const authorId = req.id;
-    const posts = await Post.findById(authorId)
+    const posts = await Post.find({ author: authorId })
       .sort({ createdAt: -1 })
-      .populate(
-        {
+      .populate({
+        path: "author",
+        select: "username profilePic",
+      })
+      .populate({
+        path: "comments",
+        options: { sort: { createdAt: -1 } },
+        populate: {
           path: "author",
-          select: "username, profilePic",
+          select: "username profilePic",
         },
-        {
-          path: "comment",
-          sort: { createdAt: -1 },
-          populate: {
-            path: "author",
-            select: "username, profilePic",
-          },
-        }
-      );
+      });
     return res.status(200).json({
       posts,
       success: true,
@@ -125,7 +121,7 @@ async function likePost(req, res) {
     // implement socket io for realtime notification
     return res.status(200).json({
       message: "Post liked",
-      success: false,
+      success: true,
     });
   } catch (err) {
     return res.status(500).json({ message: err.message || err, error: true });
@@ -173,13 +169,13 @@ async function addComment(req, res) {
         .status(404)
         .json({ message: "Post not found", success: false });
 
-    const comment = await Comment.create({
+    let comment = await Comment.create({
       text,
       author: commentedBy,
       post: postId,
     }).populate({
       path: "author",
-      select: "username, profilePic",
+      select: "username profilePic",
     });
 
     post.comments.push(comment._id);
@@ -200,7 +196,7 @@ async function getCommentsOfPost(req, res) {
     const postId = req.params.id;
     const comments = await Comment.find({
       post: postId,
-    }).populate({ path: "author", select: "username, profilePic" });
+    }).populate({ path: "author", select: "username profilePic" });
 
     if (!comments)
       return res.status(404).json({
@@ -232,7 +228,7 @@ async function deletePost(req, res) {
         message: "Unauthorized, only users can delete",
       });
 
-    await post.findByIdAndDelete(postId);
+    await Post.findByIdAndDelete(postId);
 
     let user = await User.findById(authorId);
     user.posts = user.posts.filter((id) => id.toString() !== postId);

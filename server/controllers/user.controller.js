@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const User = require("../model/user.model");
+const Post = require("../model/post.model");
 const jwt = require("jsonwebtoken");
 const getDataUri = require("../utils/dataUri");
 const cloudianry = require("../utils/cloudinary");
@@ -62,6 +63,17 @@ async function login(req, res) {
         success: false,
       });
 
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
+      expiresIn: "1d",
+    });
+
+    const populatedPosts = await Promise.all(
+      user.posts.map(async (postId) => {
+        const post = await Post.findById(postId);
+        if (post.author.equals(user._id)) return post;
+        return null;
+      })
+    );
     user = {
       _id: user._id,
       username: user.username,
@@ -70,12 +82,9 @@ async function login(req, res) {
       bio: user.bio,
       followers: user.followers,
       following: user.following,
-      posts: user.posts,
+      posts: populatedPosts,
     };
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
-      expiresIn: "1d",
-    });
     return res
       .cookie("token", token, {
         httpOnly: true,
