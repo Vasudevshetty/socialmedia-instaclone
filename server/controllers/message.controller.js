@@ -53,3 +53,8 @@ async function getMessage(req, res) {
     return res.status(500).json({ message: err.message || err, error: true });
   }
 }
+
+module.exports = {
+  sendMessage,
+  getMessage,
+};

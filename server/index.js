@@ -5,6 +5,8 @@ const dotenv = require("dotenv");
 const morgan = require("morgan");
 const connectDB = require("./utils/db");
 const userRoute = require("./routes/user.route");
+const messageRoute = require("./routes/message.route");
+const postRoute = require("./routes/post.route");
 
 const app = express();
 
@@ -28,12 +30,14 @@ app.get("/", (_, res) => {
 });
 
 app.use("/api/v1/user", userRoute);
+app.use("/api/v1/post", postRoute);
+app.use("/api/v1/message", messageRoute);
 
-// app.use("*", (req, res) => {
-//   return res
-//     .status(404)
-//     .json({ message: `Cannot find ${req.url} not found!`, erorr: true });
-// });
+app.use("*", (_, res) => {
+  return res
+    .status(404)
+    .json({ message: `Cannot find ${req.url} not found!`, erorr: true });
+});
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
