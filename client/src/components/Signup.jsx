@@ -4,6 +4,8 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import axios from "axios";
 import { toast } from "sonner";
+import { Link, useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 
 function Signup() {
   const [input, setInput] = useState({
@@ -11,7 +13,8 @@ function Signup() {
     email: "",
     password: "",
   });
-  const [isloading, setIsLoading] = useState(true);
+  const [isloading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   function inputEventChangeHandler(e) {
     setInput({ ...input, [e.target.name]: e.target.value });
@@ -34,6 +37,7 @@ function Signup() {
       if (res.data.success) {
         toast.success(res.data.message);
         setInput({ username: "", email: "", password: "" });
+        navigate("/");
       }
     } catch (error) {
       toast.error(error.response.data.message);
@@ -82,7 +86,20 @@ function Signup() {
             className="focus-visible:ring-transparent my-2"
           />
         </div>
-        <Button type="submit">Signup</Button>
+        {isloading ? (
+          <Button>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Please Wait
+          </Button>
+        ) : (
+          <Button type="submit">Signup</Button>
+        )}
+        <span className="text-center">
+          Already have an account?{" "}
+          <Link to="/login" className="text-blue-600 font-semibold">
+            Login
+          </Link>
+        </span>
       </form>
     </div>
   );

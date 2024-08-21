@@ -1,11 +1,8 @@
-import Signup from "./components/Signup";
+import { RouterProvider } from "react-router-dom";
+import router from "./routes/index";
 
 function App() {
-  return (
-    <>
-      <Signup />
-    </>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;
