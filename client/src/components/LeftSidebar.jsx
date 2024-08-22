@@ -31,7 +31,7 @@ const sidebarItems = [
   { icon: <LogOut />, text: "Logout" },
 ];
 
-function LeftSidebar() {
+function Sidebar() {
   const navigate = useNavigate();
 
   function handleSidebarClick(item) {
@@ -59,7 +59,7 @@ function LeftSidebar() {
   return (
     <div className="fixed top-0 z-10 left-0 px-4 border-r border-gray-300 w-[16%] h-screen">
       <div className="flex flex-col">
-        <h1>Logo</h1>
+        <h1 className="my-8 pl-3 text-xl font-bold">Logo</h1>
         <div>
           {sidebarItems.map((item, index) => (
             <div
@@ -77,4 +77,4 @@ function LeftSidebar() {
   );
 }
 
-export default LeftSidebar;
+export default Sidebar;
