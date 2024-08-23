@@ -13,9 +13,12 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setAuthUser } from "@/redux/authSlice";
+import { useState } from "react";
+import CreatePost from "./CreatePost";
 
-function Sidebar() {
+function LeftSidebar() {
   const { user } = useSelector((store) => store.auth);
+  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -42,6 +45,10 @@ function Sidebar() {
     switch (item.text) {
       case "Logout":
         logoutHandler();
+        break;
+      case "Create":
+        setOpen(true);
+        break;
     }
   }
 
@@ -78,8 +85,10 @@ function Sidebar() {
           ))}
         </div>
       </div>
+
+      <CreatePost open={open} setOpen={setOpen} />
     </div>
   );
 }
 
-export default Sidebar;
+export default LeftSidebar;
