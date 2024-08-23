@@ -6,7 +6,7 @@ import { FaRegHeart } from "react-icons/fa";
 import CommentDialog from "./CommentDialog";
 import { useState } from "react";
 
-function Post({ post }) {
+function Post() {
   const [text, setText] = useState("");
   const [openComment, setOpenComment] = useState(false);
 
