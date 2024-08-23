@@ -5,7 +5,7 @@ function Posts() {
   const { posts } = useSelector((store) => store.post);
   return (
     <div>
-      {posts.map((post, index) => (
+      {posts?.map((post, index) => (
         <Post key={index} post={post} />
       ))}
     </div>

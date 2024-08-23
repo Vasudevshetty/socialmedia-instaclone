@@ -2,16 +2,77 @@ import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { Dialog, DialogTrigger, DialogContent } from "./ui/dialog";
 import { Bookmark, MessageCircle, MoreHorizontal, Send } from "lucide-react";
 import { Button } from "./ui/button";
-import { FaRegHeart } from "react-icons/fa";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 import CommentDialog from "./CommentDialog";
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "sonner";
+import axios from "axios";
+import { setPost } from "@/redux/postSlice";
 
 function Post({ post }) {
+  const { user } = useSelector((store) => store.auth);
+  const { posts } = useSelector((store) => store.post);
+  const dispatch = useDispatch();
   const [text, setText] = useState("");
   const [openComment, setOpenComment] = useState(false);
+  const [liked, setLiked] = useState(post.likes.includes(user?._id) || false);
+  const [isLiking, setIsLiking] = useState(false);
+
+  async function likeOrDislikePostHandler() {
+    try {
+      const likedStatus = liked ? "dislike" : "like";
+      setIsLiking(true);
+      const res = await axios.get(
+        `${import.meta.env.VITE_APP_BACKEND_URL}/post/${
+          post._id
+        }/${likedStatus}`,
+        { withCredentials: true }
+      );
+      if (res.data.success) {
+        setLiked((liked) => !liked);
+        const updatedPosts = posts.map((toUpdate) =>
+          toUpdate._id === post._id
+            ? {
+                ...toUpdate,
+                likes: liked
+                  ? toUpdate.likes.filter((id) => id !== user._id)
+                  : [...post.likes, user._id],
+              }
+            : toUpdate
+        );
+        dispatch(setPost(updatedPosts));
+        toast.success(res.data.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message);
+    } finally {
+      setIsLiking(false);
+    }
+  }
+  async function commentPostHandler() {}
+
+  async function deletePostHandler() {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_APP_BACKEND_URL}/post/delete/${post._id}`,
+        { withCredentials: true }
+      );
+      if (res.data.success) {
+        toast.success(res.data.message);
+        const updatedPosts = posts.filter(
+          (postToDelete) => postToDelete._id !== post._id
+        );
+        dispatch(setPost(updatedPosts));
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message);
+      console.log(error);
+    }
+  }
 
   return (
-    <div className="my-8 w-full max-w-sm mx-auto">
+    <div className="my-8 w-full max-w-sm mx-auto relative">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Avatar>
@@ -26,19 +87,27 @@ function Post({ post }) {
           <DialogTrigger asChild>
             <MoreHorizontal className="cursor-pointer" />
           </DialogTrigger>
-          <DialogContent className="flex flex-col items-center text-sm text-center">
-            <Button
-              variant="ghost"
-              className="cursor-pointer w-fit text-[#ed4956] font-bold"
-            >
-              Unfollow
-            </Button>
+          <DialogContent className="flex flex-col items-center text-sm text-center outline-none">
+            {post.author._id !== user._id && (
+              <Button
+                variant="ghost"
+                className="cursor-pointer w-fit text-[#ed4956] font-bold"
+              >
+                Unfollow
+              </Button>
+            )}
             <Button variant="ghost" className="cursor-pointer w-fit">
               Add to favorites
             </Button>
-            <Button variant="ghost" className="cursor-pointer w-fit">
-              Delete
-            </Button>
+            {post.author._id === user._id && (
+              <Button
+                variant="ghost"
+                className="cursor-pointer w-fit"
+                onClick={deletePostHandler}
+              >
+                Delete
+              </Button>
+            )}
           </DialogContent>
         </Dialog>
       </div>
@@ -51,10 +120,19 @@ function Post({ post }) {
 
       <div className="flex items-center justify-between my-2">
         <div className="flex items-center gap-3">
-          <FaRegHeart
-            size={"22px"}
-            className="cursor-pointer hover:text-gray-600"
-          />
+          {!liked ? (
+            <FaRegHeart
+              size={"22px"}
+              className="cursor-pointer hover:text-gray-600"
+              onClick={likeOrDislikePostHandler}
+            />
+          ) : (
+            <FaHeart
+              size={"22px"}
+              className="cursor-pointer hover:text-gray-600"
+              onClick={likeOrDislikePostHandler}
+            />
+          )}
           <MessageCircle
             className="cursor-pointer hover:text-gray-600"
             onClick={() => setOpenComment(true)}
@@ -70,21 +148,20 @@ function Post({ post }) {
         {post.caption}
       </p>
       {post.comments.length > 0 && (
-        <>
-          <span
-            onClick={() => setOpenComment(true)}
-            className="cursor-pointer text-sm text-gray-400"
-          >
-            View all {post.comments.length} comments
-          </span>
-          <CommentDialog
-            open={openComment}
-            setOpen={setOpenComment}
-            author={post.author}
-            comments={post.comments}
-          />
-        </>
+        <span
+          onClick={() => setOpenComment(true)}
+          className="cursor-pointer text-sm text-gray-400"
+        >
+          View all {post.comments.length} comments
+        </span>
       )}
+      <CommentDialog
+        open={openComment}
+        setOpen={setOpenComment}
+        author={post.author}
+        comments={post.comments}
+        commentPostHandler={commentPostHandler}
+      />
       <div className="flex items-center justify-between my-1">
         <input
           type="text"
@@ -93,8 +170,22 @@ function Post({ post }) {
           value={text}
           onChange={(e) => setText(e.target.value.trim())}
         />
-        {text && <span className="text-[#3badf8]">Post</span>}
+        {text && (
+          <button className="text-[#3badf8]" onClick={commentPostHandler}>
+            Post
+          </button>
+        )}
       </div>
+
+      {isLiking && (
+        <div className="absolute top-[40%] right-[40%] animate-ping duration-900">
+          <FaHeart
+            size={80}
+            className="bg-clip-text opacity-6"
+            fill="#e1306c"
+          />
+        </div>
+      )}
     </div>
   );
 }

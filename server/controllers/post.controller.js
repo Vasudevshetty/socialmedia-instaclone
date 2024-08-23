@@ -145,7 +145,7 @@ async function dislikePost(req, res) {
     // implement socket io for realtime notification
     return res.status(200).json({
       message: "Post disliked",
-      success: false,
+      success: true,
     });
   } catch (err) {
     return res.status(500).json({ message: err.message || err, error: true });

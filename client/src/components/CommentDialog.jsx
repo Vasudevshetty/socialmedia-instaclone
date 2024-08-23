@@ -5,13 +5,17 @@ import { MoreHorizontal } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState } from "react";
 
-function CommentDialog({ open, setOpen, author }) {
+function CommentDialog({
+  open,
+  setOpen,
+  author,
+  comments,
+  commentPostHandler,
+}) {
   const [text, setText] = useState("");
 
-  async function sendMessageHandler() {}
-
   return (
-    <Dialog open={open} setOpen={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent
         onInteractOutside={() => setOpen(false)}
         className="max-w-5xl p-0 flex flex-col outline-none"
@@ -36,7 +40,9 @@ function CommentDialog({ open, setOpen, author }) {
                   </Avatar>
                 </Link>
                 <div>
-                  <Link className="font-semibold text-xs">{author.username}</Link>
+                  <Link className="font-semibold text-xs">
+                    {author.username}
+                  </Link>
                 </div>
               </div>
 
@@ -67,7 +73,7 @@ function CommentDialog({ open, setOpen, author }) {
                 />
                 <Button
                   variant="outline"
-                  onClick={sendMessageHandler}
+                  onClick={commentPostHandler}
                   disabled={!text.trim()}
                 >
                   Send
