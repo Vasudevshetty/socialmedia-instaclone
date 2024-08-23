@@ -33,7 +33,7 @@ function LeftSidebar() {
       icon: (
         <Avatar className="w-6 h-6">
           <AvatarImage src={user?.profilePic} alt={user?.username} />
-          <AvatarFallback>{user?.username}</AvatarFallback>
+          <AvatarFallback>{user?.username[0].toUpperCase()}</AvatarFallback>
         </Avatar>
       ),
       text: "Profile",

@@ -15,7 +15,7 @@ async function register(req, res) {
         success: false,
       });
 
-    const user = await User.findOne({ email });
+    let user = await User.findOne({ email });
     if (user)
       return res.status(401).json({
         message: "Try with a different email, already user exists",
@@ -24,7 +24,7 @@ async function register(req, res) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await User.create({
+    user = await User.create({
       username,
       email,
       password: hashedPassword,
@@ -32,6 +32,7 @@ async function register(req, res) {
 
     return res.status(201).json({
       message: "User created successfully",
+      user,
       success: true,
     });
   } catch (err) {

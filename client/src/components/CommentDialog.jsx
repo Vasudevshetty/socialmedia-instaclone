@@ -5,7 +5,7 @@ import { MoreHorizontal } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState } from "react";
 
-function CommentDialog({ open, setOpen }) {
+function CommentDialog({ open, setOpen, author }) {
   const [text, setText] = useState("");
 
   async function sendMessageHandler() {}
@@ -29,12 +29,14 @@ function CommentDialog({ open, setOpen }) {
               <div className="flex gap-3 items-center">
                 <Link>
                   <Avatar>
-                    <AvatarImage src="" alt="profile" />
-                    <AvatarFallback>CN</AvatarFallback>
+                    <AvatarImage src={author?.profilePic} alt="profile" />
+                    <AvatarFallback>
+                      {author.username[0].toUpperCase()}
+                    </AvatarFallback>
                   </Avatar>
                 </Link>
                 <div>
-                  <Link className="font-semibold text-xs">username</Link>
+                  <Link className="font-semibold text-xs">{author.username}</Link>
                 </div>
               </div>
 

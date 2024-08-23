@@ -6,7 +6,7 @@ import { FaRegHeart } from "react-icons/fa";
 import CommentDialog from "./CommentDialog";
 import { useState } from "react";
 
-function Post() {
+function Post({ post }) {
   const [text, setText] = useState("");
   const [openComment, setOpenComment] = useState(false);
 
@@ -15,10 +15,12 @@ function Post() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Avatar>
-            <AvatarImage src="" alt="post image" />
-            <AvatarFallback>CN</AvatarFallback>
+            <AvatarImage src={post.author?.profilePic} alt="post image" />
+            <AvatarFallback>
+              {post.author.username[0].toUpperCase()}
+            </AvatarFallback>
           </Avatar>
-          <h1>username</h1>
+          <h1>{post.author.username}</h1>
         </div>
         <Dialog>
           <DialogTrigger asChild>
@@ -43,7 +45,7 @@ function Post() {
 
       <img
         className="rounded-sm my-2 w-full aspect-square object-cover"
-        src="https://res.cloudinary.com/djd4cvqxr/image/upload/v1724003654/jn4ze8z86cmtxuprrvln.jpg"
+        src={post.image}
         alt="post_img"
       />
 
@@ -62,18 +64,28 @@ function Post() {
         <Bookmark className="cursor-pointer hover:text-gray-600" />
       </div>
 
-      <span className="font-medium block mb-2">1k likes</span>
+      <span className="font-medium block mb-2">{post.likes.length} likes</span>
       <p>
-        <span className="font-medium mr-2">username</span>caption
+        <span className="font-medium mr-2">{post.author.username}</span>
+        {post.caption}
       </p>
-      <span
-        onClick={() => setOpenComment(true)}
-        className="cursor-pointer text-sm text-gray-400"
-      >
-        View all 10 comments
-      </span>
-      <CommentDialog open={openComment} setOpen={setOpenComment} />
-      <div className="flex items-center justify-between">
+      {post.comments.length > 0 && (
+        <>
+          <span
+            onClick={() => setOpenComment(true)}
+            className="cursor-pointer text-sm text-gray-400"
+          >
+            View all {post.comments.length} comments
+          </span>
+          <CommentDialog
+            open={openComment}
+            setOpen={setOpenComment}
+            author={post.author}
+            comments={post.comments}
+          />
+        </>
+      )}
+      <div className="flex items-center justify-between my-1">
         <input
           type="text"
           placeholder="Add a comment.."
