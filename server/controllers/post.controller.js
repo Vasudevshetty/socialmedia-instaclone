@@ -65,7 +65,7 @@ async function getAllPosts(req, res) {
         options: { sort: { createdAt: -1 } },
         populate: {
           path: "author",
-          select: "username, profilePic",
+          select: "username profilePic",
         },
       });
 
@@ -173,7 +173,8 @@ async function addComment(req, res) {
       text,
       author: commentedBy,
       post: postId,
-    }).populate({
+    });
+    comment = await comment.populate({
       path: "author",
       select: "username profilePic",
     });
@@ -184,7 +185,7 @@ async function addComment(req, res) {
     return res.status(200).json({
       message: "Commented successfully",
       comment,
-      success: false,
+      success: true,
     });
   } catch (err) {
     return res.status(500).json({ message: err.message || err, error: true });

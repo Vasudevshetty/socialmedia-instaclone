@@ -50,7 +50,35 @@ function Post({ post }) {
       setIsLiking(false);
     }
   }
-  async function commentPostHandler() {}
+  async function commentPostHandler(dialogText) {
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_APP_BACKEND_URL}/post/${post._id}/comment`,
+        { text: text ? text : dialogText },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+      if (res.data.success) {
+        const updatedPosts = posts.map((toUpdate) =>
+          toUpdate._id === post._id
+            ? {
+                ...toUpdate,
+                comments: [res.data.comment, ...toUpdate.comments],
+              }
+            : toUpdate
+        );
+        dispatch(setPost(updatedPosts));
+        toast.success(res.data.message);
+        setText("");
+      }
+    } catch (error) {
+      toast.error(error.resopnse?.data?.message);
+    }
+  }
 
   async function deletePostHandler() {
     try {
@@ -129,6 +157,7 @@ function Post({ post }) {
           ) : (
             <FaHeart
               size={"22px"}
+              fill="#e1306c"
               className="cursor-pointer hover:text-gray-600"
               onClick={likeOrDislikePostHandler}
             />
@@ -158,17 +187,18 @@ function Post({ post }) {
       <CommentDialog
         open={openComment}
         setOpen={setOpenComment}
-        author={post.author}
-        comments={post.comments}
+        post={post}
+        text={text}
+        setText={text}
         commentPostHandler={commentPostHandler}
       />
-      <div className="flex items-center justify-between my-1">
+      <div className="flex items-center justify-between my-1 p-2 border border-gray-300 rounded">
         <input
           type="text"
           placeholder="Add a comment.."
           className="outline-none text-sm w-full"
           value={text}
-          onChange={(e) => setText(e.target.value.trim())}
+          onChange={(e) => setText(e.target.value)}
         />
         {text && (
           <button className="text-[#3badf8]" onClick={commentPostHandler}>

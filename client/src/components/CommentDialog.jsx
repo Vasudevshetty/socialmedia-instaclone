@@ -5,13 +5,7 @@ import { MoreHorizontal } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState } from "react";
 
-function CommentDialog({
-  open,
-  setOpen,
-  author,
-  comments,
-  commentPostHandler,
-}) {
+function CommentDialog({ open, setOpen, post, commentPostHandler }) {
   const [text, setText] = useState("");
 
   return (
@@ -24,7 +18,7 @@ function CommentDialog({
           <div className="w-1/2">
             <img
               className="rounded-lg  w-full h-full aspect-square object-cover"
-              src="https://res.cloudinary.com/djd4cvqxr/image/upload/v1724003654/jn4ze8z86cmtxuprrvln.jpg"
+              src={post?.image}
               alt="post_img"
             />
           </div>
@@ -33,15 +27,15 @@ function CommentDialog({
               <div className="flex gap-3 items-center">
                 <Link>
                   <Avatar>
-                    <AvatarImage src={author?.profilePic} alt="profile" />
+                    <AvatarImage src={post.author?.profilePic} alt="profile" />
                     <AvatarFallback>
-                      {author.username[0].toUpperCase()}
+                      {post.author?.username[0]?.toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                 </Link>
                 <div>
                   <Link className="font-semibold text-xs">
-                    {author.username}
+                    {post.author.username}
                   </Link>
                 </div>
               </div>
@@ -61,7 +55,17 @@ function CommentDialog({
               </Dialog>
             </div>
             <hr />
-            <div className="flex-1 overflow-y-auto max-h-96 p-4">comments</div>
+            <div className="flex-1 overflow-y-auto max-h-96 p-4">
+              {post.comments.length > 0 ? (
+                post.comments.map((comment, index) => (
+                  <div key={index} className="flex">
+                    <Comment comment={comment} />
+                  </div>
+                ))
+              ) : (
+                <div className="text-lg text-center p-1">Add a comment :)</div>
+              )}
+            </div>
             <div className="p-4">
               <div className="flex items-center gap-2">
                 <input
@@ -69,11 +73,14 @@ function CommentDialog({
                   placeholder="Add a comment"
                   className="border border-gray-300 outline-none p-2 rounded w-full"
                   value={text}
-                  onChange={(e) => setText(e.target.value).trim()}
+                  onChange={(e) => setText(e.target.value)}
                 />
                 <Button
                   variant="outline"
-                  onClick={commentPostHandler}
+                  onClick={() => {
+                    commentPostHandler(text);
+                    setText("");
+                  }}
                   disabled={!text.trim()}
                 >
                   Send
@@ -88,3 +95,22 @@ function CommentDialog({
 }
 
 export default CommentDialog;
+
+function Comment({ comment }) {
+  return (
+    <div className="my-2 w-full">
+      <div className="flex items-center gap-3">
+        <Avatar>
+          <AvatarImage src={comment?.author?.profilePic} />
+          <AvatarFallback>
+            {comment?.author?.username[0].toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+        <h1 className="font-semi-bold text-sm flex gap-2 w-full">
+          {comment?.author?.username}
+          <span className="text-sm text-gray-400 w-1/2">{comment?.text}</span>
+        </h1>
+      </div>
+    </div>
+  );
+}

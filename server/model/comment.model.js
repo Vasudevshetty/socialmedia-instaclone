@@ -11,7 +11,7 @@ const commentSchema = new mongoose.Schema(
       reqiured: [true, "Comment must be from some User"],
       ref: "User",
     },
-    author: {
+    post: {
       type: mongoose.Schema.Types.ObjectId,
       reqiured: [true, "Comment must be of some Post"],
       ref: "Post",

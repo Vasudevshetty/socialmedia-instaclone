@@ -4,12 +4,12 @@ const messageSchema = new mongoose.Schema({
   senderId: {
     type: mongoose.Schema.Types.ObjectId,
     required: [true, "There has to be a sender"],
-    ref: "user",
+    ref: "User",
   },
   receiverId: {
     type: mongoose.Schema.Types.ObjectId,
     required: [true, "There has to be a receiver"],
-    ref: "user",
+    ref: "User",
   },
   message: {
     type: String,
