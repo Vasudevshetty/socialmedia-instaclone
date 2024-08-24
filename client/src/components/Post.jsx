@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 import axios from "axios";
 import { setPost } from "@/redux/postSlice";
+import { Badge } from "./ui/badge";
 
 function Post({ post }) {
   const { user } = useSelector((store) => store.auth);
@@ -109,7 +110,10 @@ function Post({ post }) {
               {post.author.username[0].toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          <h1>{post.author.username}</h1>
+          <div className="flex items-center gap-3">
+            <h1>{post.author.username}</h1>
+            {post.author._id === user._id && <Badge variant={"secondary"}>Author</Badge>}
+          </div>
         </div>
         <Dialog>
           <DialogTrigger asChild>
