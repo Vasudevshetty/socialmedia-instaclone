@@ -116,7 +116,16 @@ async function logout(_, res) {
 async function getProfile(req, res) {
   try {
     const userId = req.params.id;
-    let user = await User.findById(userId).select("-password");
+    let user = await User.findById(userId)
+      .select("-password")
+      .populate({
+        path: "posts",
+        options: { sort: { createdAt: -1 } },
+        populate: {
+          path: "author",
+          select: "username profilePic",
+        },
+      }).populate("bookmarks");
     return res.status(200).json({
       user,
       success: true,

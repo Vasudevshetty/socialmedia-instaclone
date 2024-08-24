@@ -16,7 +16,7 @@ function RightSidebar() {
         </Link>
         <div>
           <h1 className="text-sm font-semibold">
-            <Link to={`/profie/${user._id}`}>{user.username}</Link>
+            <Link to={`/profile/${user._id}`}>{user.username}</Link>
           </h1>
           <span className="text-gray-600 text-sm">
             {user.bio || "bio here"}
