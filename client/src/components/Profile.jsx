@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import useGetUserProfile from "@/hooks/useGetUserProfile";
 import { useSelector } from "react-redux";
@@ -15,6 +15,7 @@ function Profile() {
 
   const isLoggedInUserProfile = userProfile._id === user._id;
   const isFollowed = user.following.includes(userProfile._id);
+  const navigate = useNavigate();
 
   const toDisplayPosts =
     activeTab === "posts" ? userProfile.posts : userProfile.bookmarks;
@@ -43,6 +44,7 @@ function Profile() {
                     <Button
                       variant="secondary"
                       className="hover:bg-gray-200 h-8"
+                      onClick={() => navigate("/account/edit")}
                     >
                       Edit Profile
                     </Button>
